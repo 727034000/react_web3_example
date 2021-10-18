@@ -86,8 +86,7 @@ function App2(list) {
     // console.log('injected',injected)
     // console.log('useWeb3React',useWeb3React())
     const toastId = React.useRef(null);
-    const pending = () => toastId.current = toast( '开始转账',{
-        render: "开始转账",
+    const pending = (render_conetnt) => toastId.current = toast( render_conetnt,{
         position: "top-center",
         autoClose: 50000,
         hideProgressBar: false,
@@ -96,8 +95,8 @@ function App2(list) {
         draggable: true,
         progress: undefined,
     });
-    const update = () =>  toast.update(toastId.current,{
-        render: "转账成功",
+    const update = (render_conetnt) =>  toast.update(toastId.current,{
+        render: render_conetnt,
         position: "top-center",
         autoClose: 1000,
         hideProgressBar: true,
@@ -116,23 +115,15 @@ function App2(list) {
             const result = await connect();
             console.log(result)
             const transfer = () => {
-                pending()
+                pending('开始转账')
                 let tx = result.transfer('0xDDd81F8759b0871523D6a0D704a7d2683797c13F', 0.1, 18)
                 tx.then(res => {
                     if (res.status === true) {
-                        update()
-                        // toast.success('转账成功', {
-                        //     position: "top-center",
-                        //     autoClose: 1000,
-                        //     hideProgressBar: true,
-                        //     closeOnClick: true,
-                        //     pauseOnHover: true,
-                        //     draggable: true,
-                        //     progress: undefined,
-                        // });
+                        update('转账成功')
                     }
                     toast.dismiss()
                 }).catch(error=>{
+                    update('转账失败')
                     toast.dismiss()
                 })
 

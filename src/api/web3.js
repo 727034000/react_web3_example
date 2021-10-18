@@ -2,12 +2,16 @@ import Web3 from 'web3'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import BigNumber from "bignumber.js";
+import { InjectedConnector } from '@web3-react/injected-connector'
 const address = process.env.REACT_APP_ADDRESS
 console.log(process.env.REACT_APP_ABI)
 const abi = JSON.parse(process.env.REACT_APP_ABI)
 const contract1 = function (web3) {
     return new web3.eth.Contract(abi, address)
 }
+export const injected = new InjectedConnector({
+    supportedChainIds: [1,128,256],
+})
 export default contract1
 export async function connect() {
     const providerOptions = {

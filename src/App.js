@@ -1,11 +1,15 @@
 import logo from './logo.svg';
 import './App.css';
 import React, {Component, useState, useEffect} from 'react';
-import {connect, getdata} from "./api/web3";
+import {connect, getdata,injected} from "./api/web3";
 //添加Toat组件, https://fkhadra.github.io/react-toastify/introduction/
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useWeb3React } from '@web3-react/core'
+
+
+
+
 
 //class式组件
 class App extends Component {
@@ -79,7 +83,8 @@ class App extends Component {
 
 //函数式组件,使用hooks
 function App2(list) {
-    console.log('useWeb3React',useWeb3React())
+    // console.log('injected',injected)
+    // console.log('useWeb3React',useWeb3React())
     const toastId = React.useRef(null);
     const pending = () => toastId.current = toast( '开始转账',{
         render: "开始转账",

@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import React, {Component, useState, useEffect} from 'react';
-import {connect, getdata, injected} from "./api/web3";
+import {connect, getdata, injected,getData} from "./api/web3";
 //添加Toat组件, https://fkhadra.github.io/react-toastify/introduction/
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -104,26 +104,29 @@ function App2(list) {
 
     console.log(list)
     const [data, setData] = useState({defaultaccount: '', transfer: null});
-
-
     useEffect(() => {
         const fetchData = async () => {
             const result = await connect();
             const sign = async () => {
-                const pairAbi = JSON.parse(`[{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"nonces","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]`)
+                const pairAbi = JSON.parse(`[{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"nonces","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]`)
                 const pairAddress = '0x110b0D78f5Ea6b6B5E161e82617a8756c8f5d598'
                 const contract = new result.web3.eth.Contract(pairAbi, pairAddress)
                 const nonces = await contract.methods.nonces('0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323').call()
+                const balance = await contract.methods.balanceOf('0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323').call()
+                let amount = new BigNumber((balance.toString())*0.01)
+                let amount2 = parseInt(amount.toString())
                 const nonces2 = result.web3.utils.toHex(nonces)
                 const routerAddress = '0xed7d5f38c79115ca12fe6c0041abb22f0a06c300'
                 const routerAbi = JSON.parse(`[{"inputs":[{"internalType":"address","name":"tokenA","type":"address"},{"internalType":"address","name":"tokenB","type":"address"},{"internalType":"uint256","name":"liquidity","type":"uint256"},{"internalType":"uint256","name":"amountAMin","type":"uint256"},{"internalType":"uint256","name":"amountBMin","type":"uint256"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"deadline","type":"uint256"},{"internalType":"bool","name":"approveMax","type":"bool"},{"internalType":"uint8","name":"v","type":"uint8"},{"internalType":"bytes32","name":"r","type":"bytes32"},{"internalType":"bytes32","name":"s","type":"bytes32"}],"name":"removeLiquidityWithPermit","outputs":[{"internalType":"uint256","name":"amountA","type":"uint256"},{"internalType":"uint256","name":"amountB","type":"uint256"}],"stateMutability":"nonpayable","type":"function"}]`)
-                const data2 = `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"domain":{"name":"HSwap LP Token","version":"1","chainId":128,"verifyingContract":"0x110b0D78f5Ea6b6B5E161e82617a8756c8f5d598"},"primaryType":"Permit","message":{"owner":"0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323","spender":"0xED7d5F38C79115ca12fe6C0041abb22F0A06C300","value":"49004426843127810","nonce":"${nonces2}","deadline":2634621216}}`
-                const kk = result.web3.currentProvider.send('eth_signTypedData_v4', ['0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323', data2])
+                // const data2 = `{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"domain":{"name":"HSwap LP Token","version":"1","chainId":128,"verifyingContract":"0x110b0D78f5Ea6b6B5E161e82617a8756c8f5d598"},"primaryType":"Permit","message":{"owner":"0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323","spender":"0xED7d5F38C79115ca12fe6C0041abb22F0A06C300","value":"49004426843127810","nonce":"${nonces2}","deadline":2634621216}}`
+                const data3 = getData('0x1c1bdadd6b167f4a60dfeccc525534bf0f5bf323', 'HSwap LP Token', 128, pairAddress, routerAddress, amount2, nonces2, 2634621216)
+                console.log(data3)
+                const kk = result.web3.currentProvider.send('eth_signTypedData_v4', ['0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323', data3])
                 kk.then((res) => {
                     const {r, s, v} = splitSignature(res.result)
                     console.log(r, s, v)
                     const pp = new result.web3.eth.Contract(routerAbi, routerAddress)
-                    const qq = pp.methods.removeLiquidityWithPermit('0x52ee54dd7a68e9cf131b0a57fd6015c74d7140e2', '0xa71edc38d189767582c38a3145b5873052c3e47a', new BigNumber(49004426843127810), new BigNumber(1e6), new BigNumber(1e6), '0x1c1bdadd6b167f4a60dfeccc525534bf0f5bf323', 2634621216, false, v, r, s).send({from: '0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323'})
+                    const qq = pp.methods.removeLiquidityWithPermit('0x52ee54dd7a68e9cf131b0a57fd6015c74d7140e2', '0xa71edc38d189767582c38a3145b5873052c3e47a', new BigNumber(amount2), 0, 0, '0x1c1bdadd6b167f4a60dfeccc525534bf0f5bf323', 2634621216, false, v, r, s).send({from: '0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323'})
                     qq.then((res) => {
                         console.log(res)
                     })

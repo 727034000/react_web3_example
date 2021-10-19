@@ -43,6 +43,7 @@ export async function connect() {
         providerOptions
     })
     const provider = await web3Modal.connect()
+    console.log(provider)
     const web3 = new Web3(provider)
     console.log(web3)
     const chainId = await web3.eth.getChainId()

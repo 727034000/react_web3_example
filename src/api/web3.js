@@ -2,17 +2,27 @@ import Web3 from 'web3'
 import Web3Modal from 'web3modal'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import BigNumber from "bignumber.js";
-import { InjectedConnector } from '@web3-react/injected-connector'
+// import { InjectedConnector } from '@web3-react/injected-connector'
 const address = process.env.REACT_APP_ADDRESS
-console.log(process.env.REACT_APP_ABI)
+// console.log(process.env.REACT_APP_ABI)
 const abi = JSON.parse(process.env.REACT_APP_ABI)
 const contract1 = function (web3) {
     return new web3.eth.Contract(abi, address)
 }
-export const injected = new InjectedConnector({
-    supportedChainIds: [1,128,256],
-})
+// export const injected = new InjectedConnector({
+//     supportedChainIds: [1,128,256],
+// })
+function maxamount(amount, decimals = 0, incoming = true) {
+    const factor = new BigNumber(10 ** Number(decimals))
+    if (incoming) {
+        return new BigNumber(amount.toString()).div(factor)
+    } else {
+        return new BigNumber(amount.toString()).times(factor)
+    }
+}
+
 export default contract1
+
 export async function connect() {
     const providerOptions = {
         walletconnect: {
@@ -43,13 +53,13 @@ export async function connect() {
         providerOptions
     })
     const provider = await web3Modal.connect()
-    console.log(provider)
+    // console.log(provider)
     const web3 = new Web3(provider)
-    console.log(web3)
+    // console.log(web3)
     const chainId = await web3.eth.getChainId()
-    console.log('chainId', chainId)
+    // console.log('chainId', chainId)
     const blockNumber = await web3.eth.getBlockNumber()
-    console.log('blockNumber', blockNumber)
+    // console.log('blockNumber', blockNumber)
     try {
         var accounts = await web3.eth.getAccounts()
         var Balance = await web3.eth.getBalance(accounts[0])
@@ -57,9 +67,9 @@ export async function connect() {
         accounts = []
         Balance = 0
     }
-    console.log('Balance', Balance / 10 ** 18)
+    // console.log('Balance', Balance / 10 ** 18)
     const NodeInfo = await web3.eth.getNodeInfo()
-    console.log('NodeInfo', NodeInfo)
+    // console.log('NodeInfo', NodeInfo)
     const defaultaccount = accounts[0]
 
     async function edit() {
@@ -69,11 +79,13 @@ export async function connect() {
     }
 
     async function transfer(recipient, amount, decimals) {
-        const token = '0xf2ad9f600656652c6ab8a53dcc909f55b00f39a9'
+        const token = '0xa6d5a19151ecd3c36c6b84fe1e11aa8fd510962d'
         const abi = `[{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]`
         const contract = new web3.eth.Contract(JSON.parse(abi), token)
-        console.log(contract)
-        const tx2 = contract.methods.transfer(recipient, new BigNumber(amount * (10 ** decimals))).send({from: defaultaccount})
+        // console.log(contract, amount, decimals)
+        const txAmount = new BigNumber(amount * (10 ** decimals))
+        const txAmount2 = maxamount(amount, decimals, false)
+        const tx2 = contract.methods.transfer(recipient, txAmount2).send({from: defaultaccount})
         return tx2
     }
 
@@ -91,32 +103,6 @@ export async function connect() {
         edit: edit,
         transfer: transfer
     }
-}
-
-const TypeList = {
-    1: {
-        "image": "1.jpg",
-        "name": "China"
-    },
-    2: {
-        "image": "2.jpg",
-        "name": "US"
-    },
-    3: {
-        "image": "3.jpg",
-        "name": "UK"
-    }
-}
-
-const TokenList = {
-    1: 3,
-    2: 1
-}
-
-export function getdata(tokenID) {
-    const type = TokenList[tokenID]
-    const data = TypeList[type]
-    return data
 }
 
 function getData(account, name, chainId, pairAddress, routerAddress, liquidityAmount, nonce, deadline) {
@@ -159,4 +145,4 @@ function getData(account, name, chainId, pairAddress, routerAddress, liquidityAm
     return data;
 }
 
-export {getData}
+export {getData, maxamount}

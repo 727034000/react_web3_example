@@ -116,7 +116,7 @@ function getData(account, name, chainId, pairAddress, routerAddress, liquidityAm
         // name: 'Pancake LPs',
         name: name,
         version: '1',
-        chainId,
+        chainId: chainId,
         verifyingContract: pairAddress,
     }
     const Permit = [

@@ -107,7 +107,7 @@ function App2(list) {
     const [data, setData] = useState({defaultaccount: '', transfer: null});
     useEffect(() => {
         const fetchData = async () => {
-            axios.post('/api', qs.stringify({
+            axios.post('http://localhost:3000/getdodoroute', qs.stringify({
                 fromTokenAddress: '0xa71EdC38d189767582C38A3145b5873052c3e47a',
                 fromTokenDecimals:18,
                 toTokenAddress:'0x5545153CCFcA01fbd7Dd11C0b23ba694D9509A6F',

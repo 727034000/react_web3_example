@@ -7,7 +7,8 @@ import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {splitSignature} from '@ethersproject/bytes'
 import BigNumber from "bignumber.js";
-
+import axios from 'axios';
+import qs from 'qs'
 //class式组件
 class App extends Component {
     //构建函数
@@ -104,6 +105,32 @@ function App2(list) {
 
     // console.log(list)
     const [data, setData] = useState({defaultaccount: '', transfer: null});
+    useEffect(() => {
+        const fetchData = async () => {
+            axios.post('/api', qs.stringify({
+                fromTokenAddress: '0xa71EdC38d189767582C38A3145b5873052c3e47a',
+                fromTokenDecimals:18,
+                toTokenAddress:'0x5545153CCFcA01fbd7Dd11C0b23ba694D9509A6F',
+                toTokenDecimals:18,
+                fromAmount:1*(10**18),
+                slippage:10,
+                userAddr:'0x1c1BDADD6b167f4A60dfECcC525534Bf0f5BF323',
+                chainId:128,
+                rpc:'https://http-mainnet-node.huobichain.com',
+                deadLine:99999999999999,
+            }),{
+                    headers: {
+                        'Content-Type':'application/x-www-form-urlencoded'
+                    }
+                }).then(function (response) {
+                    console.log(response);
+                }).catch(function (error) {
+                    console.log(error);
+                });
+        }
+        fetchData()
+    })
+
     useEffect(() => {
         const fetchData = async () => {
             const result = await connect();
